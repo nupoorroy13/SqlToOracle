@@ -1,0 +1,37 @@
+public bool TransferSQLTableToOracle(ILogger log)
+{
+  string tablename = "OracleTableName";
+  DataTable dt = new DataTable();
+  SqlConnection con = GetSQLConnection();
+  con.Open();
+  
+  string query = "select * from sqltablename";
+  SqlCommand command = new SqlCommand(query,con);
+  command.CommandType = CommandType.Text;
+  SqlDataAdapter da = new SqlDataAdapter(command);
+  da.Fill(dt);
+  
+  log.Info("SQL table count"+ dt.Rows.Count);
+  con.Close();
+  
+  TransfertoOracle(tablename, dt, log);
+  
+  log.Info("Transfer completed");
+  con.Dispose();
+  
+  return true;
+}
+
+public void TransfertoOracle(string tableName, DataTable dt, ILogger log)
+{
+  var con = GetOracleConnection();
+  OracleConnection connection = con as OracleConnection();
+  
+  using(OracleBulkCopy bc = new OracleBulkCopy(connection))
+  {
+  bc.DestionationTableName = tableName;
+  bc.WriteToServer(dt);
+  }
+  connection.Close();
+  connection.Dispose();
+}
