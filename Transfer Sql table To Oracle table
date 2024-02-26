@@ -4,10 +4,16 @@ public bool TransferSQLTableToOracle(ILogger log)
   DataTable dt = new DataTable();
   SqlConnection con = GetSQLConnection();
   con.Open();
-  
+
+  //With procedure
+  SqlCommand command = new SqlCommand('dbo.sp_GetTableData',con);
+  command.CommandType = CommandType.StoredProcedure;
+
+  //With tablename
   string query = "select * from sqltablename";
   SqlCommand command = new SqlCommand(query,con);
   command.CommandType = CommandType.Text;
+
   SqlDataAdapter da = new SqlDataAdapter(command);
   da.Fill(dt);
   
